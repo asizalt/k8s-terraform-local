@@ -22,11 +22,13 @@ module "web_app" {
   source   = "./modules/web-app"
   for_each = var.apps
 
-  app_name      = each.key
-  image         = var.app_image
-  replicas      = each.value.replicas
-  path_prefix   = each.value.path_prefix
-  ingress_class = module.ingress.ingress_class_name
+  app_name          = each.key
+  image             = coalesce(each.value.image, var.app_image)
+  replicas          = each.value.replicas
+  path_prefix       = each.value.path_prefix
+  ingress_class     = module.ingress.ingress_class_name
+  container_port    = each.value.container_port
+  image_pull_policy = each.value.image_pull_policy
 
   depends_on = [module.ingress]
 }

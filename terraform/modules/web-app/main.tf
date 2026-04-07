@@ -28,8 +28,7 @@ resource "kubernetes_deployment" "this" {
           name  = "web"
           image = var.image
 
-          # Never pull — image is loaded into kind via `kind load docker-image`
-          image_pull_policy = "Never"
+          image_pull_policy = var.image_pull_policy
 
           port {
             container_port = var.container_port

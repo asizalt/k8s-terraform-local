@@ -13,7 +13,10 @@ variable "app_image" {
 variable "apps" {
   description = "Map of apps to deploy. Key = app name, value = config."
   type = map(object({
-    replicas    = number
-    path_prefix = string
+    replicas          = number
+    path_prefix       = string
+    image             = optional(string)
+    container_port    = optional(number, 8080)
+    image_pull_policy = optional(string, "Never")
   }))
 }

@@ -36,3 +36,9 @@ variable "container_port" {
   type        = number
   default     = 8080
 }
+
+variable "image_pull_policy" {
+  description = "Image pull policy: Never (local), IfNotPresent, or Always"
+  type        = string
+  default     = "Never"
+}
