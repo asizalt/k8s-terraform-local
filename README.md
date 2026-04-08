@@ -94,6 +94,8 @@ Used to inspect the cluster — pods, services, ingress rules, logs.
 
 The `kubernetes` and `helm` Terraform providers need a kubeconfig to initialize, which is only generated after the cluster is created. For this reason, we first create the cluster, then load the image into it before deploying everything else.
 
+Run all commands from the **project root** (`k8s-terraform-local/`):
+
 ```bash
 # Build the app image
 docker build -t local/web-app:latest ./app
@@ -104,12 +106,13 @@ terraform init
 terraform apply -target=module.cluster -target=local_file.kubeconfig -auto-approve
 
 # Load the image into kind (kind cannot access your local Docker registry directly)
+# Run this in a new terminal or PowerShell window
 kind load docker-image local/web-app:latest --name local-cluster
 ```
 
 ### Step 2 — Deploy everything
 
-Now that the kubeconfig exists and the image is loaded, deploy the ingress controller and all web apps in one shot:
+Stay inside the `terraform/` directory and deploy the ingress controller and all web apps in one shot:
 
 ```bash
 terraform apply -auto-approve
@@ -149,7 +152,7 @@ apps = {
 }
 ```
 
-Then run:
+Then run from the `terraform/` directory:
 ```bash
 terraform apply -auto-approve
 ```
@@ -210,6 +213,7 @@ kubectl logs -l app=app-1
 To destroy everything:
 
 ```bash
+# Run from the project root
 cd terraform
 terraform destroy -auto-approve
 ```
