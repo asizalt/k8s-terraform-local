@@ -1,3 +1,5 @@
+# Deploys one instance of the web app as a Kubernetes Deployment.
+# This module is called once per app via for_each in the root main.tf.
 resource "kubernetes_deployment" "this" {
   metadata {
     name      = var.app_name
@@ -28,13 +30,15 @@ resource "kubernetes_deployment" "this" {
           name  = "web"
           image = var.image
 
+          # "Never" for locally loaded images (kind), "IfNotPresent" for public images.
           image_pull_policy = var.image_pull_policy
 
           port {
             container_port = var.container_port
           }
 
-          # Inject pod identity via the Downward API
+          # Inject pod identity via the Downward API so the app can return
+          # its own pod name and IP without any custom logic.
           env {
             name = "POD_NAME"
             value_from {
@@ -53,6 +57,8 @@ resource "kubernetes_deployment" "this" {
             }
           }
 
+          # Terraform waits for this probe to pass before marking the deployment
+          # as complete, ensuring the app is ready before proceeding.
           readiness_probe {
             http_get {
               path = "/"
@@ -67,6 +73,8 @@ resource "kubernetes_deployment" "this" {
   }
 }
 
+# ClusterIP exposes the app internally only — external traffic goes through
+# the ingress controller, not directly to this service.
 resource "kubernetes_service" "this" {
   metadata {
     name      = var.app_name
@@ -87,21 +95,28 @@ resource "kubernetes_service" "this" {
   }
 }
 
+# One Ingress resource per app. nginx-ingress watches all Ingress objects
+# and merges them into its routing table automatically.
 resource "kubernetes_ingress_v1" "this" {
   metadata {
     name      = var.app_name
     namespace = var.namespace
     annotations = {
+      # Strip the path prefix before forwarding to the service.
+      # $2 captures everything after the prefix (e.g. /app-1/foo → /foo).
       "nginx.ingress.kubernetes.io/rewrite-target" = "/$2"
     }
   }
 
   spec {
+    # Routes only Ingress objects with this class to the nginx controller.
     ingress_class_name = var.ingress_class
 
     rule {
       http {
         path {
+          # Matches /app-1, /app-1/, and /app-1/anything.
+          # Group 1: the slash separator. Group 2: the remainder forwarded via rewrite.
           path      = "${var.path_prefix}(/|$)(.*)"
           path_type = "ImplementationSpecific"
 

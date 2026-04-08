@@ -1,6 +1,8 @@
 cluster_name = "local-cluster"
-app_image    = "local/web-app:latest"
+app_image    = "local/web-app:latest" # default image used by all apps unless overridden per-app
 
+# This is the only file you need to edit to add, remove, or configure apps.
+# Each key becomes the app name, path prefix, and Kubernetes resource names.
 apps = {
   "app-1" = { replicas = 2, path_prefix = "/app-1" }
   "app-2" = { replicas = 1, path_prefix = "/app-2" }
