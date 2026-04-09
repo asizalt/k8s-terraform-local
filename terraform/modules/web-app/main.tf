@@ -67,6 +67,17 @@ resource "kubernetes_deployment" "this" {
             initial_delay_seconds = 3
             period_seconds        = 5
           }
+
+          # Restarts the container if the app is alive but hung (deadlock, infinite loop, etc).
+          # Higher initial_delay than readiness so the pod isn't restarted before it finishes starting up.
+          liveness_probe {
+            http_get {
+              path = "/"
+              port = var.container_port
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 15
+          }
         }
       }
     }
