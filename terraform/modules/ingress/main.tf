@@ -25,20 +25,6 @@ resource "helm_release" "ingress_nginx" {
     type  = "string"
   }
 
-  # Tolerate the control-plane taint so nginx can schedule there.
-  # Required now that a worker node exists and Kubernetes enforces taints strictly.
-  set {
-    name  = "controller.tolerations[0].key"
-    value = "node-role.kubernetes.io/control-plane"
-  }
-  set {
-    name  = "controller.tolerations[0].operator"
-    value = "Equal"
-  }
-  set {
-    name  = "controller.tolerations[0].effect"
-    value = "NoSchedule"
-  }
 
   # Wait until the controller is fully ready before Terraform proceeds
   wait    = true

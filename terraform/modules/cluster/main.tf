@@ -7,12 +7,18 @@ resource "kind_cluster" "this" {
 
     node {
       role = "control-plane"
+    }
+
+    # Worker node — runs both nginx ingress and app pods.
+    # Port mappings here expose host ports 80/443 via Docker, simulating a load balancer.
+    node {
+      role = "worker"
 
       # Label the node as ingress-ready so the nginx-ingress controller's
       # nodeSelector can find it and schedule onto it.
       kubeadm_config_patches = [
         <<-YAML
-          kind: InitConfiguration
+          kind: JoinConfiguration
           nodeRegistration:
             kubeletExtraArgs:
               node-labels: "ingress-ready=true"
@@ -33,12 +39,6 @@ resource "kind_cluster" "this" {
         host_port      = 443
         protocol       = "TCP"
       }
-    }
-
-    # Worker node — app pods schedule here automatically.
-    # Control-plane taint prevents regular pods from landing on the control-plane.
-    node {
-      role = "worker"
     }
   }
 }
