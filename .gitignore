@@ -1,0 +1,17 @@
+# Kubeconfig written by Terraform
+.kubeconfig
+
+# Terraform state & cache
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# kind cluster config file
+terraform/local-cluster-config
+
+memory/
+
+# OS
+.DS_Store
+Thumbs.db
