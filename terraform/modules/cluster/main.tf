@@ -34,5 +34,11 @@ resource "kind_cluster" "this" {
         protocol       = "TCP"
       }
     }
+
+    # Worker node — app pods schedule here automatically.
+    # Control-plane taint prevents regular pods from landing on the control-plane.
+    node {
+      role = "worker"
+    }
   }
 }
