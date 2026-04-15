@@ -37,6 +37,17 @@ resource "kubernetes_deployment" "this" {
             container_port = var.container_port
           }
 
+          resources {
+            requests = {
+              cpu    = "50m"
+              memory = "64Mi"
+            }
+            limits = {
+              cpu    = "200m"
+              memory = "128Mi"
+            }
+          }
+
           # Inject pod identity via the Downward API so the app can return
           # its own pod name and IP without any custom logic.
           env {
