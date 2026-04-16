@@ -37,7 +37,12 @@ jobs:
         run: terraform apply -target=module.cluster -target=local_file.kubeconfig -auto-approve
 
       - name: Load image into kind
-        run: kind load docker-image local/web-app:latest --name local-cluster
+        run: |
+          docker save local/web-app:latest -o /tmp/web-app.tar
+          for node in $(kind get nodes --name local-cluster); do
+            docker cp /tmp/web-app.tar ${node}:/tmp/web-app.tar
+            docker exec ${node} ctr -n k8s.io images import /tmp/web-app.tar
+          done
 
       - name: Deploy everything
         working-directory: terraform
