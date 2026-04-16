@@ -38,10 +38,8 @@ jobs:
 
       - name: Load image into kind
         run: |
-          docker save local/web-app:latest -o /tmp/web-app.tar
           for node in $(kind get nodes --name local-cluster); do
-            docker cp /tmp/web-app.tar ${node}:/tmp/web-app.tar
-            docker exec ${node} ctr -n k8s.io images import /tmp/web-app.tar
+            docker save local/web-app:latest | docker exec -i ${node} ctr -n k8s.io images import -
           done
 
       - name: Deploy everything
